@@ -71,6 +71,11 @@ namespace NGCASCBF
 
             Console.WriteLine("Data path: {0}", listFilesPath);
 
+            if (!Directory.Exists(DB2FolderPath))
+                DB2FolderPath = ".\\DBFilesClient\\";
+
+            Console.WriteLine("DB2 path: {0}", DB2FolderPath);
+
             string finalListFilePath = Path.Combine(listFilesPath, finalListFile);
 
             if (File.Exists(finalListFilePath))
