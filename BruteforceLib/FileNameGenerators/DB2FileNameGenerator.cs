@@ -5,11 +5,6 @@ namespace BruteforceLib.Generators
 {
     class DB2FileNameGenerator : FileNameGenerator
     {
-        public override IEnumerable<string> GetFileNames()
-        {
-            yield break;
-        }
-
         public override IEnumerable<string> GetFileNames(params string[] args)
         {
             string db2Path = args[1];

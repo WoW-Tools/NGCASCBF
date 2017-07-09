@@ -13,10 +13,5 @@ namespace BruteforceLib.Generators
                 yield return string.Format("Textures\\BakedNpcTextures\\CreatureDisplayExtra-{0}_HD.blp", i);
             }
         }
-
-        public override IEnumerable<string> GetFileNames(params string[] args)
-        {
-            yield break;
-        }
     }
 }

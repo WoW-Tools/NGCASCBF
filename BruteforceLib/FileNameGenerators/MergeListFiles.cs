@@ -6,11 +6,6 @@ namespace BruteforceLib.Generators
 {
     class MergeListFiles : FileNameGenerator
     {
-        public override IEnumerable<string> GetFileNames()
-        {
-            yield break;
-        }
-
         public override IEnumerable<string> GetFileNames(params string[] args)
         {
             string dataPath = args[0];

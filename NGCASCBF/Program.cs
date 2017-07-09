@@ -22,7 +22,7 @@ namespace NGCASCBF
 
         static List<FileNameGenerator> fileNameGenerators = new List<FileNameGenerator>();
 
-        static long hashCount;
+        //static long hashCount;
 
         // Folder with listfiles
         static string listFilesPath = @"f:\Dev\WoW\listfiles\";
@@ -89,13 +89,27 @@ namespace NGCASCBF
             {
                 Console.WriteLine($"Running {generator.Name}...");
 
-                swatch.Start();
-                Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
-                swatch.Stop();
+                try
+                {
+                    swatch.Start();
+                    Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
+                    swatch.Stop();
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine($"Generator exception: {exc.Message}");
+                }
 
-                swatch.Start();
-                Parallel.ForEach(generator.GetFileNames(listFilesPath, DB2FolderPath), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
-                swatch.Stop();
+                try
+                {
+                    swatch.Start();
+                    Parallel.ForEach(generator.GetFileNames(listFilesPath, DB2FolderPath), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
+                    swatch.Stop();
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine($"Generator exception: {exc.Message}");
+                }
             }
 
             Console.WriteLine(swatch.Elapsed);
@@ -158,7 +172,7 @@ namespace NGCASCBF
         {
             //reset.WaitOne();
 
-            Interlocked.Increment(ref hashCount);
+            //Interlocked.Increment(ref hashCount);
 
             if (!hashes.ContainsKey(hash))
                 return false;
