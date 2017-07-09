@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NGCASCBF": {
+      "commandName": "Project",
+      "workingDirectory": "c:\\Users\\TOM_RUS\\Documents\\Visual Studio 2017\\Projects\\NGCASCBF\\NGCASCBF\\bin\\Debug\\netcoreapp1.1\\"
+    }
+  }
+}
