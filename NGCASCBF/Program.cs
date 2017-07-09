@@ -1,16 +1,16 @@
 ﻿using BruteforceLib;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using BruteforceLib.Hashing;
-using System.Threading;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NGCASCBF
 {
@@ -25,7 +25,9 @@ namespace NGCASCBF
         static long hashCount;
 
         // Folder with listfiles
-        static string dataPath = @"f:\Dev\WoW\listfiles\";
+        static string listFilesPath = @"f:\Dev\WoW\listfiles\";
+        // DB2 path
+        static string DB2FolderPath = @"f:\Dev\WoW\DBFilesClient_24500\";
         // Root file path
         static string RootFilePath = @"f:\Dev\WoW\tools\CASCExplorer\CASCExplorer\bin\Debug\root";
         // Merged listfile name
@@ -64,10 +66,17 @@ namespace NGCASCBF
 
             Console.WriteLine("Loaded {0} known name hashes!", hashes.Count);
 
-            if (!Directory.Exists(dataPath))
-                dataPath = ".\\listfiles\\";
+            if (!Directory.Exists(listFilesPath))
+                listFilesPath = ".\\listfiles\\";
 
-            Console.WriteLine("Data path: {0}", dataPath);
+            Console.WriteLine("Data path: {0}", listFilesPath);
+
+            string finalListFilePath = Path.Combine(listFilesPath, finalListFile);
+
+            if (File.Exists(finalListFilePath))
+            {
+                File.Delete(finalListFilePath);
+            }
 
             Stopwatch swatch = new Stopwatch();
 
@@ -78,11 +87,15 @@ namespace NGCASCBF
                 swatch.Start();
                 Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
                 swatch.Stop();
+
+                swatch.Start();
+                Parallel.ForEach(generator.GetFileNames(listFilesPath, DB2FolderPath), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
+                swatch.Stop();
             }
 
             Console.WriteLine(swatch.Elapsed);
 
-            SaveKnownNames(dataPath + finalListFile);
+            SaveKnownNames(finalListFilePath);
 
             Console.WriteLine("Done!");
 

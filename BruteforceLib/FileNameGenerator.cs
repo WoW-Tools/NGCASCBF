@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace BruteforceLib
 {
@@ -7,13 +6,8 @@ namespace BruteforceLib
     {
         public virtual string Name => GetType().Name;
 
-        public FileNameGenerator()
-        {
-
-        }
-
         public abstract IEnumerable<string> GetFileNames();
 
-        public abstract IEnumerable<string> GetFileNames(string baseName);
+        public abstract IEnumerable<string> GetFileNames(params string[] args);
     }
 }

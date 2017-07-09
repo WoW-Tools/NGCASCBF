@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace BruteforceLib
+namespace BruteforceLib.Generators
 {
     class CreatureDisplayFileNameGenerator : FileNameGenerator
     {
@@ -15,9 +14,9 @@ namespace BruteforceLib
             }
         }
 
-        public override IEnumerable<string> GetFileNames(string baseName)
+        public override IEnumerable<string> GetFileNames(params string[] args)
         {
-            throw new NotImplementedException();
+            yield break;
         }
     }
 }
