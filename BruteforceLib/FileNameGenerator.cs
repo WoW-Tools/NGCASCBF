@@ -6,12 +6,10 @@ namespace BruteforceLib
     {
         public virtual string Name => GetType().Name;
 
-        public virtual IEnumerable<string> GetFileNames()
-        {
-            yield break;
-        }
+        public static string ListFilesFolder { get; set; }
+        public static string DB2Folder { get; set; }
 
-        public virtual IEnumerable<string> GetFileNames(params string[] args)
+        public virtual IEnumerable<string> GetFileNames()
         {
             yield break;
         }

@@ -6,11 +6,9 @@ namespace BruteforceLib.Generators
 {
     class MergeListFiles : FileNameGenerator
     {
-        public override IEnumerable<string> GetFileNames(params string[] args)
+        public override IEnumerable<string> GetFileNames()
         {
-            string dataPath = args[0];
-
-            var lists = Directory.GetFiles(dataPath, "*.txt").OrderBy(n => n);
+            var lists = Directory.GetFiles(ListFilesFolder, "*.txt").OrderBy(n => n);
 
             TextFileEnumerator currentFile;
 

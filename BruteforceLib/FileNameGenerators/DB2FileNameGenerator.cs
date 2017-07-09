@@ -5,18 +5,16 @@ namespace BruteforceLib.Generators
 {
     class DB2FileNameGenerator : FileNameGenerator
     {
-        public override IEnumerable<string> GetFileNames(params string[] args)
+        public override IEnumerable<string> GetFileNames()
         {
-            string db2Path = args[1];
-
-            DB6Reader mid = new DB6Reader(Path.Combine(db2Path, "ManifestInterfaceData.db2"));
+            DB6Reader mid = new DB6Reader(Path.Combine(DB2Folder, "ManifestInterfaceData.db2"));
 
             foreach (var row in mid)
             {
                 yield return string.Format("{0}{1}", row.Value.GetField<string>(0), row.Value.GetField<string>(1));
             }
 
-            DB6Reader ls = new DB6Reader(Path.Combine(db2Path, "LightSkybox.db2"));
+            DB6Reader ls = new DB6Reader(Path.Combine(DB2Folder, "LightSkybox.db2"));
 
             foreach (var row in ls)
             {
@@ -24,7 +22,7 @@ namespace BruteforceLib.Generators
                     yield return string.Format("{0}", row.Value.GetField<string>(0));
             }
 
-            DB6Reader maps = new DB6Reader(Path.Combine(db2Path, "Map.db2"));
+            DB6Reader maps = new DB6Reader(Path.Combine(DB2Folder, "Map.db2"));
 
             foreach (var map in maps)
             {
@@ -59,8 +57,8 @@ namespace BruteforceLib.Generators
             //Interface\WorldMap\%s\%s%d.blp WorldMapArea[3], WorldMapArea[3], 1-12
             //Interface\WorldMap\%s\%s%d_%d.blp WorldMapArea[3], WorldMapArea[3], floor, 1-12
 
-            DB6Reader wmas = new DB6Reader(Path.Combine(db2Path, "WorldMapArea.db2"));
-            DB6Reader wmos = new DB6Reader(Path.Combine(db2Path, "WorldMapOverlay.db2"));
+            DB6Reader wmas = new DB6Reader(Path.Combine(DB2Folder, "WorldMapArea.db2"));
+            DB6Reader wmos = new DB6Reader(Path.Combine(DB2Folder, "WorldMapOverlay.db2"));
 
             foreach (var wma in wmas)
             {
@@ -93,7 +91,7 @@ namespace BruteforceLib.Generators
                 }
             }
 
-            DB6Reader at = new DB6Reader(Path.Combine(db2Path, "AreaTable.db2"));
+            DB6Reader at = new DB6Reader(Path.Combine(DB2Folder, "AreaTable.db2"));
 
             foreach (var a in at)
             {

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NGCASCBF
@@ -25,9 +24,9 @@ namespace NGCASCBF
         //static long hashCount;
 
         // Folder with listfiles
-        static string listFilesPath = @"f:\Dev\WoW\listfiles\";
+        static string ListFilesFolder = @"f:\Dev\WoW\listfiles\";
         // DB2 path
-        static string DB2FolderPath = @"f:\Dev\WoW\DBFilesClient_24500\";
+        static string DB2Folder = @"f:\Dev\WoW\DBFilesClient_24500\";
         // Root file path
         static string RootFilePath = @"f:\Dev\WoW\tools\CASCExplorer\CASCExplorer\bin\Debug\root";
         // Merged listfile name
@@ -66,17 +65,21 @@ namespace NGCASCBF
 
             Console.WriteLine("Loaded {0} known name hashes!", hashes.Count);
 
-            if (!Directory.Exists(listFilesPath))
-                listFilesPath = ".\\listfiles\\";
+            if (!Directory.Exists(ListFilesFolder))
+                ListFilesFolder = ".\\listfiles\\";
 
-            Console.WriteLine("Data path: {0}", listFilesPath);
+            Console.WriteLine("Data path: {0}", ListFilesFolder);
 
-            if (!Directory.Exists(DB2FolderPath))
-                DB2FolderPath = ".\\DBFilesClient\\";
+            FileNameGenerator.ListFilesFolder = ListFilesFolder;
 
-            Console.WriteLine("DB2 path: {0}", DB2FolderPath);
+            if (!Directory.Exists(DB2Folder))
+                DB2Folder = ".\\DBFilesClient\\";
 
-            string finalListFilePath = Path.Combine(listFilesPath, finalListFile);
+            Console.WriteLine("DB2 path: {0}", DB2Folder);
+
+            FileNameGenerator.DB2Folder = DB2Folder;
+
+            string finalListFilePath = Path.Combine(ListFilesFolder, finalListFile);
 
             if (File.Exists(finalListFilePath))
             {
@@ -93,17 +96,6 @@ namespace NGCASCBF
                 {
                     swatch.Start();
                     Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
-                    swatch.Stop();
-                }
-                catch (Exception exc)
-                {
-                    Console.WriteLine($"Generator exception: {exc.Message}");
-                }
-
-                try
-                {
-                    swatch.Start();
-                    Parallel.ForEach(generator.GetFileNames(listFilesPath, DB2FolderPath), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
                     swatch.Stop();
                 }
                 catch (Exception exc)
