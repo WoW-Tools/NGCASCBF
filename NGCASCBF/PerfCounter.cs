@@ -5,7 +5,7 @@ namespace NGCASCBF
 {
     class PerfCounter : IDisposable
     {
-        Stopwatch sw;
+        private Stopwatch sw;
 
         public PerfCounter()
         {

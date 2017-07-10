@@ -8,15 +8,15 @@ namespace NGCASCBF
 
         public static void DrawProgressBar(long complete, long maxVal, int barSize, char progressCharacter, bool paused, int speed)
         {
-            float perc = (float)complete / maxVal;
+            double perc = (double)complete / maxVal;
             DrawProgressBar(perc, barSize, progressCharacter, paused, speed);
         }
 
-        public static void DrawProgressBar(float percent, int barSize, char progressCharacter, bool paused, int speed)
+        public static void DrawProgressBar(double percent, int barSize, char progressCharacter, bool paused, int speed)
         {
             lock (lockObj)
             {
-                int chars = (int)Math.Round(percent / (1.0f / barSize));
+                int chars = (int)Math.Round(percent / (1.0 / barSize));
                 Console.CursorVisible = false;
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.CursorLeft = 0;

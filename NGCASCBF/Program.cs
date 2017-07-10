@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NGCASCBF
@@ -21,7 +22,12 @@ namespace NGCASCBF
 
         static List<FileNameGenerator> fileNameGenerators = new List<FileNameGenerator>();
 
-        //static long hashCount;
+        static ManualResetEvent reset = new ManualResetEvent(true);
+
+        static DateTime startTime;
+        static long hashCount;
+        static int currentSpeed;
+        static bool stop = true;
 
         // Folder with listfiles
         static string ListFilesFolder = @"f:\Dev\WoW\listfiles\";
@@ -32,11 +38,27 @@ namespace NGCASCBF
         // Merged listfile name
         const string finalListFile = "finallist.txt";
 
+        static FileNameGenerator currentGenerator;
+
         static void Main(string[] args)
         {
             Console.WriteLine($"NumLogicalProcessors: {Environment.ProcessorCount}");
 
             LoadFileNameGenerators();
+
+            // plain text hashes source
+            if (File.Exists("hashes.txt"))
+            {
+                using (StreamReader sr = File.OpenText("hashes.txt"))
+                {
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        ulong hash = ulong.Parse(line, System.Globalization.NumberStyles.HexNumber);
+                        hashes[hash] = true;
+                    }
+                }
+            }
 
             if (!File.Exists(RootFilePath))
                 RootFilePath = "root";
@@ -65,19 +87,25 @@ namespace NGCASCBF
 
             Console.WriteLine("Loaded {0} known name hashes!", hashes.Count);
 
+            Thread t = new Thread(StateHandler)
+            {
+                IsBackground = true
+            };
+            t.Start();
+
             if (!Directory.Exists(ListFilesFolder))
                 ListFilesFolder = ".\\listfiles\\";
 
             Console.WriteLine("Data path: {0}", ListFilesFolder);
 
-            FileNameGenerator.ListFilesFolder = ListFilesFolder;
+            BruteforceConfig.ListFilesFolder = ListFilesFolder;
 
             if (!Directory.Exists(DB2Folder))
                 DB2Folder = ".\\DBFilesClient\\";
 
             Console.WriteLine("DB2 path: {0}", DB2Folder);
 
-            FileNameGenerator.DB2Folder = DB2Folder;
+            BruteforceConfig.DB2Folder = DB2Folder;
 
             string finalListFilePath = Path.Combine(ListFilesFolder, finalListFile);
 
@@ -88,15 +116,21 @@ namespace NGCASCBF
 
             Stopwatch swatch = new Stopwatch();
 
+            startTime = DateTime.Now;
+
             foreach (var generator in fileNameGenerators)
             {
                 Console.WriteLine($"Running {generator.Name}...");
 
                 try
                 {
+                    currentGenerator = generator;
+
                     swatch.Start();
-                    Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, () => new Jenkins96(), HandleLine, LocalFinal);
+                    Parallel.ForEach(generator.GetFileNames(), new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, LocalInit, HandleLine, LocalFinal);
                     swatch.Stop();
+
+                    Console.WriteLine();
                 }
                 catch (Exception exc)
                 {
@@ -113,7 +147,7 @@ namespace NGCASCBF
             //Console.ReadKey();
         }
 
-        static char[] pathInvalidChars = Path.GetInvalidPathChars();
+        static readonly char[] pathInvalidChars = Path.GetInvalidPathChars();
 
         static Jenkins96 HandleLine(string line, ParallelLoopState state, Jenkins96 hasher)
         {
@@ -143,14 +177,48 @@ namespace NGCASCBF
             return hasher;
         }
 
+        static Jenkins96 LocalInit()
+        {
+            return new Jenkins96();
+        }
+
         static void LocalFinal(Jenkins96 local)
         {
-            //int secs = (int)(DateTime.Now - startTime).TotalSeconds;
+            int secs = (int)(DateTime.Now - startTime).TotalSeconds;
 
-            //if (secs > 0)
-            //    currentSpeed = (int)(hashCount / secs);
+            if (secs > 0)
+                currentSpeed = (int)(hashCount / secs);
 
-            //ConsoleProgressBar.DrawProgressBar(currentFile.Percent, 71, '#', false, currentSpeed);
+            ConsoleProgressBar.DrawProgressBar(currentGenerator.Percent, 71, '#', false, currentSpeed);
+        }
+
+        static void StateHandler()
+        {
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+
+                    if (key.Key == ConsoleKey.P)
+                    {
+                        if (stop)
+                        {
+                            reset.Reset();
+                            ConsoleProgressBar.DrawProgressBar(currentGenerator.Percent, 71, '#', true, 0);
+                        }
+                        else
+                        {
+                            reset.Set();
+                            ConsoleProgressBar.DrawProgressBar(currentGenerator.Percent, 71, '#', false, currentSpeed);
+                        }
+
+                        stop = !stop;
+                    }
+                }
+
+                Thread.Sleep(50);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -162,9 +230,9 @@ namespace NGCASCBF
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool CheckName(ulong hash, string name)
         {
-            //reset.WaitOne();
+            reset.WaitOne();
 
-            //Interlocked.Increment(ref hashCount);
+            Interlocked.Increment(ref hashCount);
 
             if (!hashes.ContainsKey(hash))
                 return false;

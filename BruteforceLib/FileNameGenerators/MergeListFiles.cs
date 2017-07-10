@@ -8,12 +8,16 @@ namespace BruteforceLib.Generators
     {
         public override IEnumerable<string> GetFileNames()
         {
-            var lists = Directory.GetFiles(ListFilesFolder, "*.txt").OrderBy(n => n);
+            var lists = Directory.GetFiles(BruteforceConfig.ListFilesFolder, "*.txt").OrderBy(n => n);
+
+            Count = lists.Count();
 
             TextFileEnumerator currentFile;
 
             foreach (string list in lists)
             {
+                Index++;
+
                 currentFile = new TextFileEnumerator(list);
 
                 foreach (string fileName in currentFile)
